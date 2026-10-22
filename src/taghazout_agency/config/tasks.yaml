@@ -1,0 +1,9 @@
+reply_whatsapp_task:
+  description: >
+    A prospect with phone number {sender_phone} sent this WhatsApp message: "{user_message}".
+    1. Answer their question directly using our real pricing (Pack Essential 3,500 DH + 1,200 DH/mo or Pack Full Camp 6,500 DH + 1,900 DH/mo) or our Booking.com 15-20% commission savings argument.
+    2. Mention our Pioneer Partner Program (only 5 spots) if they ask about discounts or getting started.
+    3. Ask if they want to see the 2-minute demo video or book a quick 15-minute discovery call.
+  expected_output: >
+    A friendly, natural WhatsApp reply under 65 words in the user's language (French, English, or Darija), formatted as plain text with no markdown headers.
+  agent: whatsapp_concierge

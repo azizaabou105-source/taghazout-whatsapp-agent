@@ -14,19 +14,42 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install uv and CrewAI
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
-      - name: Generate Project & Agency Files
+      - name: Create CrewAI Project Files
         run: |
           if [ ! -f "pyproject.toml" ]; then
-            uv tool install crewai
-            crewai create crew taghazout_agency --skip_provider
-            cp -rn taghazout_agency/* . || true
-            rm -rf taghazout_agency
-            
+            mkdir -p src/taghazout_agency/config
+
+            cat << 'EOF' > pyproject.toml
+          [project]
+          name = "taghazout_agency"
+          version = "0.1.0"
+          description = "Taghazout Digital Agency WhatsApp Crew"
+          authors = [{ name = "Taghazout Digital Agency", email = "aouriraisolution@gmail.com" }]
+          requires-python = ">=3.10,<3.13"
+          dependencies = [
+              "crewai[tools]>=0.100.0,<1.0.0",
+              "requests>=2.31.0"
+          ]
+
+          [project.scripts]
+          taghazout_agency = "taghazout_agency.main:run"
+          run_crew = "taghazout_agency.main:run"
+
+          [build-system]
+          requires = ["hatchling"]
+          build-backend = "hatchling.build"
+
+          [tool.crewai]
+          type = "crew"
+          EOF
+            sed -i 's/^          //' pyproject.toml
+
+            cat << 'EOF' > src/taghazout_agency/__init__.py
+          EOF
+
             cat << 'EOF' > src/taghazout_agency/config/agents.yaml
           whatsapp_concierge:
             role: >
@@ -46,6 +69,7 @@ jobs:
               Always reply in the exact language the prospect uses (French, English, or Moroccan Darija). Keep replies under 3 short sentences and end with a clear question to send them the 2:30 demo video or book a 15-minute discovery call.
             llm: gemini/gemini-2.5-flash
           EOF
+            sed -i 's/^          //' src/taghazout_agency/config/agents.yaml
 
             cat << 'EOF' > src/taghazout_agency/config/tasks.yaml
           reply_whatsapp_task:
@@ -58,6 +82,7 @@ jobs:
               A friendly, natural WhatsApp reply under 65 words in the user's language (French, English, or Darija), formatted as plain text with no markdown headers.
             agent: whatsapp_concierge
           EOF
+            sed -i 's/^          //' src/taghazout_agency/config/tasks.yaml
 
             cat << 'EOF' > src/taghazout_agency/crew.py
           from crewai import Agent, Crew, Process, Task
@@ -91,6 +116,7 @@ jobs:
                       verbose=True,
                   )
           EOF
+            sed -i 's/^          //' src/taghazout_agency/crew.py
 
             cat << 'EOF' > src/taghazout_agency/main.py
           #!/usr/bin/env python
@@ -107,6 +133,7 @@ jobs:
               }
               TaghazoutAgency().crew().kickoff(inputs=inputs)
           EOF
+            sed -i 's/^          //' src/taghazout_agency/main.py
 
             uv lock
             git config user.name "github-actions[bot]"
